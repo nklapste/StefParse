@@ -1,33 +1,34 @@
 """Startup script for StefParse"""
+import argparse
 import logging
 import logging.handlers
-import argparse
+
 import serial
 
-from stefparse.inparse import start_stefparse
+from stefparse.parse import start_stefparse
 
 
 def main():
+    """Main startup argparse script"""
     parser = argparse.ArgumentParser(description="StefParse Serial Logger")
 
     group = parser.add_argument_group(title="Serial config")
-    group.add_argument("-p", "--port", default="COM3",
-                       help="Set the serial port")
+    group.add_argument("-p", "--port", required=True,
+                       help="Set the serial port to listen from")
     group.add_argument("-b", "--baudrate", default=9600,
-                       help="Set the communication baudrate")
+                       help="Set the serial baudrate")
     group.add_argument("-t", "--timeout", default=0.5,
                        help="Set the timeout value for the serial "
-                            "communication")
+                            "communication (default: %(default)s)")
 
-    group = parser.add_argument_group(title="Serial config")
-
+    group = parser.add_argument_group(title="Logging config")
     group.add_argument("-v", "--verbose", action="store_true",
                        help="Enable verbose logging")
     group.add_argument("-f", "--log-dir", dest="logdir",
                        help="Enable time rotating file logging at "
                             "the path specified")
     group.add_argument("-d", "--debug", action="store_true",
-                       help="Enable DEBUG logging level")
+                       help="Enable logging at a DEBUG level")
     args = parser.parse_args()
 
     # initialize logging
@@ -43,7 +44,6 @@ def main():
         )
     if args.verbose:
         handlers.append(logging.StreamHandler())
-
     if args.debug:
         level = logging.DEBUG
     else:
@@ -55,10 +55,13 @@ def main():
         handlers=handlers,
     )
 
+    # initialize serial communication
     ser = serial.Serial(args.port, args.baudrate)
     ser.timeout = args.timeout
 
+    # start serial parsing/filtering/logging
     start_stefparse(ser)
+
 
 if __name__ == "__main__":
     main()

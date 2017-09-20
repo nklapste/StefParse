@@ -1,10 +1,9 @@
 """Serial parser/filter/logger module"""
 import logging
-import time
 import re
+import time
 
 __log__ = logging.getLogger(__name__)
-
 
 # current sensor log IDs dictionary containing tuples of
 # (last current display time, last displayed current value)
@@ -24,55 +23,55 @@ THRESH_D = 10
 
 
 def start_stefparse(ser):
-    last_c_log = -10
-
+    """While loop that continually parses/filters/logs serial input"""
     while True:
         for line in ser.readlines():
-
             # ignore blank lines
             if not line.strip():
                 continue
+            __log__.debug("RAW_LOG - {}".format(line))
 
             m = re.search("(\d{2}:\d{2}:\d{2}\.\d{3})([A-Za-z\s]\s*)(.*)", line)
-
-            log_str = "RAW_LOG - {}".format(line)
-            __log__.debug(log_str)
 
             try:
                 log_time = m.group(1)
                 log_id = m.group(2).strip()
                 log_mssg = m.group(3).strip()
-            except:
-                log_str = "CORRUPT_LOG - {}".format(line)
-                __log__.debug(log_str)
+            except (TypeError, AttributeError):
+                __log__.debug("CORRUPT_LOG - {}".format(line))
                 continue
 
             if log_id in CURRENT_SENSORS:
                 current_val = float(log_mssg)
-                # limit filter current logs as they are spammy
+                # limit filter current logs
                 if time.time() > CURRENT_SENSORS[log_id][0] + THRESH_T or \
                    current_val >= CURRENT_SENSORS[log_id][1] + THRESH_U or \
                    current_val <= CURRENT_SENSORS[log_id][1] - THRESH_D:
+                    __log__.info("CURRENT_{}_LOG - {}{} \t{}".format(
+                            log_id,
+                            log_time,
+                            log_id,
+                            log_mssg,
+                        )
+                    )
 
-                    log_str = "CURRENT_{}_LOG - {}{} \t{}".format(
+                    # update current id current value and log time
+                    CURRENT_SENSORS[log_id] = (time.time(), current_val)
+
+            elif log_id in MISC_LOG_IDS:
+                __log__.info("{}_LOG - {}{} \t{}".format(
                         log_id,
                         log_time,
                         log_id,
                         log_mssg,
                     )
-                    __log__.info(log_str)
-
-                    # update current id current value and log time
-                    CURRENT_SENSORS[log_id] = (time.time(), current_val)
-
-            elif log_id in  MISC_LOG_IDS:
-                log_str = "{}_LOG - {}{} \t{}".format(
-                    log_id,
-                    log_time,
-                    log_id,
-                    log_mssg,
                 )
-                __log__.info(log_str)
+
             else:
-                log_str = "UNKNOWN_LOG - {}".format(line.strip())
-                __log__.warning(log_str)
+                __log__.warning("UNKNOWN_{}_LOG - {}{} \t{}".format(
+                        log_id,
+                        log_time,
+                        log_id,
+                        log_mssg,
+                    )
+                )
