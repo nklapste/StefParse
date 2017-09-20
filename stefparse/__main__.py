@@ -1,11 +1,11 @@
+"""Startup script for StefParse"""
 import logging
 import logging.handlers
 import argparse
 import serial
-import sys
-
 
 from stefparse.inparse import start_stefparse
+
 
 def main():
     parser = argparse.ArgumentParser(description="StefParse Serial Logger")
@@ -60,24 +60,5 @@ def main():
 
     start_stefparse(ser)
 
-#TODO TEST
-import os
-
-# initialize logging
-handlers = list()
-handlers.append(logging.StreamHandler())
-level = logging.INFO
-logging.basicConfig(
-    level=level,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=handlers,
-)
-
-BASEDIR = os.path.dirname(os.path.realpath(__file__))
-ser = open(os.path.join(BASEDIR, "testlogs.txt"))
-start_stefparse(ser)
-#
-#
-#
-# if __name__ == "__main__":
-#     sys.exit(main())
+if __name__ == "__main__":
+    main()
