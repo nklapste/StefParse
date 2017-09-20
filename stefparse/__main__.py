@@ -18,17 +18,17 @@ def main():
     group.add_argument("-b", "--baudrate", default=9600,
                        help="Set the serial baudrate")
     group.add_argument("-t", "--timeout", default=0.5,
-                       help="Set the timeout value for the serial "
-                            "communication (default: %(default)s)")
+                       help="Set the serial timeout value "
+                            "(default: %(default)s)")
 
     group = parser.add_argument_group(title="Logging config")
     group.add_argument("-v", "--verbose", action="store_true",
                        help="Enable verbose logging")
+    group.add_argument("-d", "--debug", action="store_true",
+                       help="Enable logging at a DEBUG level")
     group.add_argument("-f", "--log-dir", dest="logdir",
                        help="Enable time rotating file logging at "
                             "the path specified")
-    group.add_argument("-d", "--debug", action="store_true",
-                       help="Enable logging at a DEBUG level")
     args = parser.parse_args()
 
     # initialize logging
