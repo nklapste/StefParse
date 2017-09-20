@@ -1,4 +1,10 @@
+"""StefParse
 
+A Python based terminal parser/filter/logger for AlbertaSat dev uses.
 
-CURRENT_SERIAL_IDS = {"X", "Y", "Z"}
-MISC_SERIAL_IDS = {"A", "B"}
+Scripts:
+    __main__
+Modules:
+    inparse
+"""
+
