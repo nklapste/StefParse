@@ -12,7 +12,7 @@ setup(
     package_data={
         "": ["README.md"],
     },
-    install_requires=[],
+    install_requires=["pyserial"],
     entry_points={
         "console_scripts": ["stefparse = stefparse.__main__:main"],
     },
